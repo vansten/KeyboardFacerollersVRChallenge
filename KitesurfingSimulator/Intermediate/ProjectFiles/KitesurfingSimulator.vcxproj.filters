@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<None Include="..\..\KitesurfingSimulator.uproject" />
+		<Filter Include="Source">
+			<UniqueIdentifier>{336D7CB6-AB5B-4F13-90B5-4F18013CCAA3}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\KitesurfingSimulator.Target.cs">
+			<Filter>Source</Filter>
+		</None >
+		<None Include="..\..\Source\KitesurfingSimulatorEditor.Target.cs">
+			<Filter>Source</Filter>
+		</None >
+		<Filter Include="Config">
+			<UniqueIdentifier>{01E7562C-5FBC-4807-81DD-D6F57FCF9597}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Config\DefaultEditor.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultEditorPerProjectUserSettings.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultEngine.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultGame.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultInput.ini">
+			<Filter>Config</Filter>
+		</None >
+		<Filter Include="Source\KitesurfingSimulator">
+			<UniqueIdentifier>{8837A64C-3FED-4F16-89B2-F664163A78C1}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\KitesurfingSimulator\KitesurfingSimulator.Build.cs">
+			<Filter>Source\KitesurfingSimulator</Filter>
+		</None >
+		<ClCompile Include="..\..\Source\KitesurfingSimulator\KitesurfingSimulator.cpp">
+			<Filter>Source\KitesurfingSimulator</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\KitesurfingSimulator\KitesurfingSimulator.h">
+			<Filter>Source\KitesurfingSimulator</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\KitesurfingSimulator\KitesurfingSimulatorCharacter.cpp">
+			<Filter>Source\KitesurfingSimulator</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\KitesurfingSimulator\KitesurfingSimulatorCharacter.h">
+			<Filter>Source\KitesurfingSimulator</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Source\KitesurfingSimulator\KitesurfingSimulatorGameMode.cpp">
+			<Filter>Source\KitesurfingSimulator</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Source\KitesurfingSimulator\KitesurfingSimulatorGameMode.h">
+			<Filter>Source\KitesurfingSimulator</Filter>
+		</ClInclude >
+	</ItemGroup>
+</Project>

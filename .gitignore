@@ -56,3 +56,9 @@ Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+#Log files
+*.log
+
+#Bin files
+*.bin
