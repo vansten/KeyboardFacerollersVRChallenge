@@ -1,1 +1,1 @@
-#include "D:\_WORK\Actual semester\VR Challenge\Repo\KitesurfingSimulator\Source\KitesurfingSimulator\KitesurfingSimulator.h"
+#include "D:\Repositories\VRy\KitesurfingSimulator\Source\KitesurfingSimulator\KitesurfingSimulator.h"
