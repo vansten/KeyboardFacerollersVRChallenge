@@ -3,6 +3,6 @@
 #ifndef __KITESURFINGSIMULATOR_H__
 #define __KITESURFINGSIMULATOR_H__
 
-#include "EngineMinimal.h"
+#include "Engine.h"
 
 #endif

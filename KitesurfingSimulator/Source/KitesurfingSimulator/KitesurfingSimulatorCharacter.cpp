@@ -10,6 +10,12 @@ AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetEnableGravity(false);
+
+	//Turn off gravity for mesh
+	GetMesh()->SetEnableGravity(false);
+
+	bSimGravityDisabled = true;
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
@@ -24,7 +30,10 @@ AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = false; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->AirControl = 1.0f;
-	GetCharacterMovement()->bAlwaysCheckFloor = false;
+	GetCharacterMovement()->AirControlBoostMultiplier = 0.0f;
+	GetCharacterMovement()->AirControlBoostVelocityThreshold = 0.0f;
+	GetCharacterMovement()->FallingLateralFriction = 8.0f;
+	GetCharacterMovement()->GravityScale = 0.0f;
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
