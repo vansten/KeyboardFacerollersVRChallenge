@@ -12,41 +12,29 @@ class AKitesurfingSimulatorCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, Category = Camera)
 	class UCameraComponent* FollowCamera;
 
+protected:
+	float _yawRotation;
+	float _prevYawRotation;
+	float _minimumYaw;
+	float _maximumYaw;
+	float _currentSpeed;
+
 public:
 	AKitesurfingSimulatorCharacter();
 
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
-	float BaseTurnRate;
-
-	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
-	float BaseLookUpRate;
-
-protected:
-
-	/** Called for forwards/backward input */
-	void MoveForward(float Value);
-
-	/** Called for side to side input */
-	void MoveRight(float Value);
-
-	/** 
-	 * Called via input to turn at a given rate. 
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
-	void TurnAtRate(float Rate);
-
-	/**
-	 * Called via input to turn look up/down at a given rate. 
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
-	void LookUpAtRate(float Rate);
+	UPROPERTY(EditAnywhere, Category = Movement)
+	float Speed;
 
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
+
+	// AActor interface
+	virtual void Tick(float DeltaSeconds) override;
+	// End of AActor interface
+
+	void Turn(float value);
 
 public:
 	/** Returns FollowCamera subobject **/

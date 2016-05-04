@@ -8,6 +8,8 @@
 
 AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetEnableGravity(false);
@@ -16,10 +18,6 @@ AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 	GetMesh()->SetEnableGravity(false);
 
 	bSimGravityDisabled = true;
-
-	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -52,55 +50,34 @@ void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputCompo
 	// Set up gameplay key bindings
 	check(InputComponent);
 
-	InputComponent->BindAxis("MoveForward", this, &AKitesurfingSimulatorCharacter::MoveForward);
-	InputComponent->BindAxis("MoveRight", this, &AKitesurfingSimulatorCharacter::MoveRight);
-
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	InputComponent->BindAxis("TurnRate", this, &AKitesurfingSimulatorCharacter::TurnAtRate);
+	InputComponent->BindAxis("Turn", this, &AKitesurfingSimulatorCharacter::Turn);
 	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	InputComponent->BindAxis("LookUpRate", this, &AKitesurfingSimulatorCharacter::LookUpAtRate);
+
+	_yawRotation = GetActorRotation().Yaw;
+	_prevYawRotation = _yawRotation;
+	_minimumYaw = _yawRotation - 60.0f;
+	_maximumYaw = _yawRotation + 60.0f;
 }
 
-void AKitesurfingSimulatorCharacter::TurnAtRate(float Rate)
+void AKitesurfingSimulatorCharacter::Turn(float value)
 {
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-}
-
-void AKitesurfingSimulatorCharacter::LookUpAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-}
-
-void AKitesurfingSimulatorCharacter::MoveForward(float Value)
-{
-	if ((Controller != NULL) && (Value != 0.0f))
+	_yawRotation += value;
+	_yawRotation = FMath::Clamp(_yawRotation, _minimumYaw, _maximumYaw);
+	float diff = _yawRotation - _prevYawRotation;
+	if (GEngine)
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Black, FString::SanitizeFloat(_yawRotation));
 	}
+	AddControllerYawInput(diff);
+	_prevYawRotation = _yawRotation;
 }
 
-void AKitesurfingSimulatorCharacter::MoveRight(float Value)
+void AKitesurfingSimulatorCharacter::Tick(float DeltaSeconds)
 {
-	if ( (Controller != NULL) && (Value != 0.0f) )
+	AddMovementInput(-FVector::RightVector, _currentSpeed * DeltaSeconds);
+
+	if (GWorld)
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		_currentSpeed = Speed * FMath::Pow(FMath::Sin(GWorld->GetRealTimeSeconds()), 2);
 	}
 }
