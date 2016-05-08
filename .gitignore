@@ -63,3 +63,7 @@
 
 # Don't ignore icon files in Build
 !**/Build/**/*.ico
+
+!**/Plugins/Wiimote/*
+
+!**/Binaries/Win64/wiiuse.dll
