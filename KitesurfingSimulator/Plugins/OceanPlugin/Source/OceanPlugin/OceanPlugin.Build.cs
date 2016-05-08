@@ -16,7 +16,7 @@ public class OceanPlugin : ModuleRules
     public OceanPlugin(TargetInfo Target)
     {
         PrivateIncludePaths.AddRange(new string[] { "OceanPlugin/Private" });
-       // PublicIncludePaths.AddRange(new string[] { "OceanPlugin/Public" });
+        PublicIncludePaths.AddRange(new string[] { "OceanPlugin/Public" });
 
         PublicDependencyModuleNames.AddRange(new string[] { "Engine", "Core", "CoreUObject", "InputCore", "PhysX", "APEX", "Landscape" });
     }

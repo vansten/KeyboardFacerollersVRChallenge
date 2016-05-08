@@ -2,6 +2,7 @@
 
 #include "KitesurfingSimulator.h"
 #include "KitesurfingSimulatorCharacter.h"
+#include "EngineUtils.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AKitesurfingSimulatorCharacter
@@ -38,8 +39,17 @@ AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 	FollowCamera->AttachTo(RootComponent); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+	Board = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Board"));
+	Board->AttachTo(RootComponent);
+
+	Lines = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Lines"));
+	Lines->AttachTo(RootComponent);
+
+	Kite = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Kite"));
+	Kite->AttachTo(Lines);
+
+	GetMesh()->AttachTo(Board);
+	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, 90.0f));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -55,8 +65,29 @@ void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputCompo
 
 	_yawRotation = GetActorRotation().Yaw;
 	_prevYawRotation = _yawRotation;
-	_minimumYaw = -10.0f;
-	_maximumYaw = 70.0f;
+	_minimumYaw = 45.0f;
+	_maximumYaw = 135.0f;
+}
+
+void AKitesurfingSimulatorCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GWorld)
+	{
+		for (TActorIterator<AOceanManager> ActorItr(GWorld); ActorItr; ++ActorItr)
+		{
+			if ((*ActorItr) != NULL)
+			{
+				_oceanManager = (*ActorItr);
+				break;
+			}
+		}
+	}
+
+	check(_oceanManager != NULL && "Have you placed ocean manager on map somewhere?");
+
+	_twoThirdSpeed = 2.0f * Speed / 3.0f;
 }
 
 void AKitesurfingSimulatorCharacter::Turn(float value)
@@ -76,8 +107,12 @@ void AKitesurfingSimulatorCharacter::Tick(float DeltaSeconds)
 {
 	AddMovementInput(-FVector::RightVector, _currentSpeed * DeltaSeconds);
 
-	if (GWorld)
+	_currentSpeed = _twoThirdSpeed * FMath::Pow(FMath::Sin(GWorld->GetRealTimeSeconds()), 2) + 0.5f * _twoThirdSpeed;
+
+	if (_oceanManager)
 	{
-		_currentSpeed = Speed * FMath::Pow(FMath::Sin(GWorld->GetRealTimeSeconds()), 2);
+		FVector actorLocation = GetActorLocation();
+		actorLocation.Z = _oceanManager->GetWaveHeightValue(actorLocation, GWorld, true, true).Z + 90.0f;
+		SetActorLocation(actorLocation);
 	}
 }
