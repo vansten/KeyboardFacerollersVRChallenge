@@ -55,8 +55,8 @@ void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputCompo
 
 	_yawRotation = GetActorRotation().Yaw;
 	_prevYawRotation = _yawRotation;
-	_minimumYaw = _yawRotation - 60.0f;
-	_maximumYaw = _yawRotation + 60.0f;
+	_minimumYaw = -10.0f;
+	_maximumYaw = 70.0f;
 }
 
 void AKitesurfingSimulatorCharacter::Turn(float value)

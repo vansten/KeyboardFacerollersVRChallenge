@@ -8,8 +8,13 @@ class AKitesurfingSimulatorGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
+protected:
+	TSubclassOf<class AKitesurfingSimulatorFishBase> FishClass;
+
 public:
 	AKitesurfingSimulatorGameMode();
+
+	virtual void BeginPlay() override;
 };
 
 
