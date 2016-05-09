@@ -5,4 +5,6 @@
 
 #include "Engine.h"
 
+void OnScreenMessage(int32 key, float duration, FColor color, const FString& message);
+
 #endif

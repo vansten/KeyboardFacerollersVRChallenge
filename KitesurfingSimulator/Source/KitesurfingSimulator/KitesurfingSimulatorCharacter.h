@@ -17,6 +17,9 @@ class AKitesurfingSimulatorCharacter : public ACharacter
 		UStaticMeshComponent* Board;
 
 	UPROPERTY(EditAnywhere, Category = Meshes)
+		UStaticMeshComponent* Bar;
+
+	UPROPERTY(EditAnywhere, Category = Meshes)
 		UStaticMeshComponent* Lines;
 
 	UPROPERTY(EditAnywhere, Category = Meshes)
@@ -25,18 +28,32 @@ class AKitesurfingSimulatorCharacter : public ACharacter
 protected:
 	class AOceanManager* _oceanManager;
 
+	//Camera controls
 	float _yawRotation;
 	float _prevYawRotation;
 	float _minimumYaw;
 	float _maximumYaw;
+
+	//Character speed
 	float _currentSpeed;
-	float _twoThirdSpeed;
+	float _minSpeed;
+	float _maxSpeedMinusMinSpeed;
+	float _barYawMultiplier;
+	float _barRollMultiplier;
+
+	//Bar controls
+	FRotator _barRotation;
+	const float _pitchToDirectionX = 1.0f / 80.0f;
+
+	//Character movement
+	FVector _currentDirection;
 
 public:
 	AKitesurfingSimulatorCharacter();
 
+	//X - min speed, Y - max speed
 	UPROPERTY(EditAnywhere, Category = Movement)
-	float Speed;
+	FVector SpeedConstraints;
 
 protected:
 	// APawn interface
@@ -50,6 +67,9 @@ protected:
 	// End of AActor interface
 
 	void Turn(float value);
+
+	void TiltBarHorizontal(float value);
+	void TiltBarVertical(float value);
 
 public:
 	/** Returns FollowCamera subobject **/

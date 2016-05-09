@@ -31,7 +31,10 @@ void AKitesurfingSimulatorGameMode::BeginPlay()
 		FVector Location;
 		for (int i = 0; i < 1000; ++i)
 		{
-			Location = FVector(FMath::FRandRange(29580.f, 85950.f), FMath::FRandRange(42310.f, 11600.f), FMath::FRandRange(40.f, 180.f));
+			float x = FMath::FRandRange(3.0f, 8.0f) * 10000.0f;
+			float y = FMath::FRandRange(4.5f, 11.0f) * 10000.0f;
+			float z = FMath::FRandRange(60.0f, 140.0f);
+			Location = FVector(x, y, z);
 			GWorld->SpawnActor(fishClass, &Location, &FRotator::ZeroRotator);
 		}
 	}

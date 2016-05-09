@@ -67,3 +67,4 @@
 !**/Plugins/Wiimote/*
 
 !**/Binaries/Win64/wiiuse.dll
+*.opendb
