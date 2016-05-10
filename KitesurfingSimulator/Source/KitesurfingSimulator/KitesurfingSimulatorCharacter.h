@@ -11,7 +11,7 @@ class AKitesurfingSimulatorCharacter : public ACharacter
 
 	// Follow camera
 	UPROPERTY(EditAnywhere, Category = Camera)
-	class UCameraComponent* FollowCamera;
+		class UCameraComponent* FollowCamera;
 
 	// Meshes
 	UPROPERTY(EditAnywhere, Category = Meshes)
@@ -43,16 +43,17 @@ protected:
 	float _minSpeed;
 	float _maxSpeedMinusMinSpeed;
 	float _barRollMultiplier;
+	float _barYawMultiplier;
 
 	// Bar controls
 	FRotator _barRotation;
-	float _barMinYaw;
-	float _barMaxYaw;
-	const float _pitchToDirectionX = 1.0f / 80.0f;
+	float _prevBarPitchNormalized;
+	float _currentBarPitchNormalized;
+	const float _pitchToDirectionX = -1.0f / 80.0f;
 	bool _bRotatesManually;
 
-	// Character movement
-	FVector _currentDirection;
+	// Statistics
+	static int32 _colaCansCollected;
 
 public:
 	AKitesurfingSimulatorCharacter();
@@ -65,6 +66,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = BarControls, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 		float ReturnToBasePitchSpeed;
 
+	// Returns number of cola cans collected
+	static int32 GetColaCansCollectedNumber() { return _colaCansCollected; }
+
 protected:
 	// Overriden functions
 
@@ -75,6 +79,14 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 	// End of overriden functions
+
+	// Helper functions
+	
+	void CollectCans();
+
+	void SetBoardUpVector();
+
+	// End of helper functions
 
 	// Input handlers
 	
@@ -90,4 +102,3 @@ public:
 	// Returns FollowCamera subobject
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
-

@@ -2,10 +2,14 @@
 
 #include "KitesurfingSimulator.h"
 #include "KitesurfingSimulatorCharacter.h"
+#include "KitesurfingSimulatorPickable.h"
 #include "EngineUtils.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AKitesurfingSimulatorCharacter
+
+// Static variables
+int32 AKitesurfingSimulatorCharacter::_colaCansCollected = 0;
 
 AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 {
@@ -48,7 +52,7 @@ AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 
 	// Disable gravity for mesh
 	mesh->SetEnableGravity(false);
-	mesh->AttachTo(Board);
+	mesh->AttachTo(RootComponent);
 
 	FVector meshForward = mesh->GetForwardVector();
 
@@ -114,7 +118,7 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 	_maximumPitch = _pitchRotation + 89.9f;
 
 	// Set proper camera yaw and pitch rotations
-	_yawRotation = FMath::Clamp(_yawRotation, _minimumYaw, _maximumYaw);
+	_yawRotation = FMath::Clamp(_yawRotation - 90.0f, _minimumYaw, _maximumYaw);
 	followCameraRotation.Yaw = _yawRotation + GetActorRotation().Yaw;
 	
 	_pitchRotation = FMath::Clamp(_pitchRotation, _minimumPitch, _maximumPitch);
@@ -129,13 +133,12 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 	// Find bar rotation restrictions
 	_barRotation = Bar->GetComponentRotation();
 	_barRotation.Pitch = FMath::Clamp(_barRotation.Pitch, -80.0f, 80.0f);
-	_barRotation.Roll = FMath::Clamp(_barRotation.Roll, 5.0f, 85.0f);
+	_barRotation.Roll = FMath::Clamp(_barRotation.Roll, -75.0f, -5.0f);
+	_barRotation.Yaw = 90.0f + actorRotation.Yaw;
 	Bar->SetWorldRotation(_barRotation);
-	_barMinYaw = _barRotation.Yaw - 45.0f;
-	_barMaxYaw = _barRotation.Yaw + 45.0f;
 
-	// Set current direction to (0, -1, 0)
-	_currentDirection = -FVector::RightVector;
+	// Zero cola cans number
+	_colaCansCollected = 0;
 }
 
 void AKitesurfingSimulatorCharacter::Turn(float value)
@@ -169,7 +172,7 @@ void AKitesurfingSimulatorCharacter::TiltBarHorizontal(float value)
 	if (value != 0.0f)
 	{
 		// Add bar pitch rotation
-		_barRotation.Pitch = FMath::Clamp(_barRotation.Pitch + value, -80.0f, 80.0f);
+		_barRotation.Pitch = FMath::Clamp(_barRotation.Pitch - value * 2.0f, -80.0f, 80.0f);
 		_bRotatesManually = true;
 	}
 	else
@@ -183,24 +186,28 @@ void AKitesurfingSimulatorCharacter::TiltBarVertical(float value)
 	if (value != 0.0f)
 	{
 		// Add bar roll rotation
-		_barRotation.Roll = FMath::Clamp(_barRotation.Roll + value, 5.0f, 85.0f);
-		_barRollMultiplier = FMath::Sin(FMath::DegreesToRadians(_barRotation.Roll) * 2.0f);
+		_barRotation.Roll = FMath::Clamp(_barRotation.Roll - value * 2.0f, -75.0f, -5.0f);
+		_barRollMultiplier = FMath::Sin(FMath::DegreesToRadians(FMath::Abs(_barRotation.Roll)) * 2.0f);
 	}
 }
 
 void AKitesurfingSimulatorCharacter::Tick(float DeltaSeconds)
 {
-	// Calculate current direction
-	float prevDirectionX = _currentDirection.X;
-	_currentDirection.X = _barRotation.Pitch * _pitchToDirectionX;
-	_currentDirection.Y = -1.0f;
-	_currentDirection.Z = 0.0f;
-	_currentDirection.Normalize();
+	CollectCans();
 
-	// Calculate bar yaw rotation
-	float deltaDirectionX = _currentDirection.X - prevDirectionX;
-	float barYawDelta = deltaDirectionX * DeltaSeconds * 90.0f;
-	_barRotation.Yaw = FMath::Clamp(_barRotation.Yaw + barYawDelta, -90.0f, 0.0f) + GetActorRotation().Yaw;
+	//Calculate bar rotation pitch normalized
+	_prevBarPitchNormalized = _currentBarPitchNormalized;
+	_currentBarPitchNormalized = _barRotation.Pitch * _pitchToDirectionX;
+
+	// Calculate new actor forward vector
+	FVector actorForward = GetActorForwardVector();
+	actorForward.X += _currentBarPitchNormalized * DeltaSeconds;
+	actorForward.Normalize();
+	SetActorRotation(actorForward.Rotation());
+
+	// Calculate bar yaw rotation and bar yaw multiplier
+	_barRotation.Yaw = GetActorRotation().Yaw + 90.0f;
+	_barYawMultiplier = 1.0f - (FMath::Abs(actorForward.X));
 
 	// If bar pitch wasn't affected in this frame then return to 0.0f
 	if (!_bRotatesManually)
@@ -209,34 +216,42 @@ void AKitesurfingSimulatorCharacter::Tick(float DeltaSeconds)
 	}
 	Bar->SetWorldRotation(_barRotation);
 
-	// Calculate new actor forward vector
-	FVector actorForward = GetActorForwardVector();
-	actorForward.X += _currentDirection.X * DeltaSeconds;
-	actorForward.Normalize();
-	SetActorRotation(actorForward.Rotation());
-
-	// Calculate real direction
-	FVector realDirection = -FVector::RightVector;
-	realDirection.X = _currentDirection.X + actorForward.X;
-	realDirection.Normalize();
-	
-
 	// Calculate current speed depending on bar roll rotation. Sin(realTimeSeconds)^2 is supposed to simulate wind somehow
 	_currentSpeed = _maxSpeedMinusMinSpeed * _barRollMultiplier * FMath::Pow(FMath::Sin(GWorld->GetRealTimeSeconds()), 2) + _minSpeed;
+	_currentSpeed *= _barYawMultiplier;
 
 	// Affect actor's location depending on waves
 	if (_oceanManager)
 	{
-		FVector actorLocation = GetActorLocation();
-		actorLocation.Z = _oceanManager->GetWaveHeightValue(actorLocation, GWorld, true, true).Z + 90.0f;
-		SetActorLocation(actorLocation);
+		FVector currentActorLocation = GetActorLocation();
+		currentActorLocation.Z = _oceanManager->GetWaveHeightValue(currentActorLocation, GWorld, true, true).Z + 90.0f;
+		SetActorLocation(currentActorLocation);
 	}
 
 	// Add speed in real direction
-	AddMovementInput(realDirection, _currentSpeed * DeltaSeconds);
+	AddMovementInput(actorForward, _currentSpeed * DeltaSeconds);
 
 	// Debug messages
 	OnScreenMessage(3, 5.0f, FColor::Green, FString("Actor forward: ").Append(actorForward.ToString()));
 	OnScreenMessage(1, 5.0f, FColor::Red, FString("Current speed: ").Append(FString::SanitizeFloat(_currentSpeed)));
-	OnScreenMessage(0, 5.0f, FColor::Blue, FString("Current direction: ").Append(_currentDirection.ToString()));
+}
+
+void AKitesurfingSimulatorCharacter::CollectCans()
+{
+	TArray<AActor*> OverlappingActors;
+	GetCapsuleComponent()->GetOverlappingActors(OverlappingActors, AKitesurfingSimulatorPickable::StaticClass());
+
+	AKitesurfingSimulatorPickable* pickable = NULL;
+	int32 size = OverlappingActors.Num();
+	for (int32 i = 0; i < size; ++i)
+	{
+		pickable = Cast<AKitesurfingSimulatorPickable>(OverlappingActors[i]);
+		if (pickable != NULL)
+		{
+			_colaCansCollected += 1;
+			pickable->Collect();
+		}
+	}
+
+	OnScreenMessage(4, 5.0f, FColor::Black, FString("Cola cans collected: ").Append(FString::FromInt(GetColaCansCollectedNumber())));
 }

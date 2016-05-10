@@ -14,3 +14,6 @@
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorGameMode_generated_h
 	#include "KitesurfingSimulatorGameMode.h"
 #endif
+#ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorPickable_generated_h
+	#include "KitesurfingSimulatorPickable.h"
+#endif
