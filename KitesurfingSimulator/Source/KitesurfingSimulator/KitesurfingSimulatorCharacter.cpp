@@ -5,6 +5,9 @@
 #include "KitesurfingSimulatorPickable.h"
 #include "EngineUtils.h"
 
+// Wiimote include
+#include "../Plugins/Wiimote/Source/Wiimote/Public/WiimoteFunctionLibrary.h"
+
 //////////////////////////////////////////////////////////////////////////
 // AKitesurfingSimulatorCharacter
 
@@ -72,7 +75,7 @@ AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 	// Attach follow camera to mesh
 	FollowCamera->AttachTo(mesh);
 	FollowCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f) + meshForward * 35.0f);
-	FollowCamera->SetRelativeRotation(meshForward.Rotation());
+	FollowCamera->SetRelativeRotation(GetActorForwardVector().Rotation());
 }
 
 void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
@@ -84,6 +87,7 @@ void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputCompo
 	InputComponent->BindAxis("LookUp", this, &AKitesurfingSimulatorCharacter::LookUp);
 	InputComponent->BindAxis("TiltBarHorizontal", this, &AKitesurfingSimulatorCharacter::TiltBarHorizontal);
 	InputComponent->BindAxis("TiltBarVertical", this, &AKitesurfingSimulatorCharacter::TiltBarVertical);
+	InputComponent->BindVectorAxis("Tilt", this, &AKitesurfingSimulatorCharacter::Tilt);
 }
 
 void AKitesurfingSimulatorCharacter::BeginPlay()
@@ -118,7 +122,7 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 	_maximumPitch = _pitchRotation + 89.9f;
 
 	// Set proper camera yaw and pitch rotations
-	_yawRotation = FMath::Clamp(_yawRotation - 90.0f, _minimumYaw, _maximumYaw);
+	_yawRotation = FMath::Clamp(_yawRotation - 75.0f, _minimumYaw, _maximumYaw);
 	followCameraRotation.Yaw = _yawRotation + GetActorRotation().Yaw;
 	
 	_pitchRotation = FMath::Clamp(_pitchRotation, _minimumPitch, _maximumPitch);
@@ -133,12 +137,15 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 	// Find bar rotation restrictions
 	_barRotation = Bar->GetComponentRotation();
 	_barRotation.Pitch = FMath::Clamp(_barRotation.Pitch, -80.0f, 80.0f);
-	_barRotation.Roll = FMath::Clamp(_barRotation.Roll, -75.0f, -5.0f);
-	_barRotation.Yaw = 90.0f + actorRotation.Yaw;
+	_barRotation.Roll = -65.0f;
+	_barYawRotation = 0.0f;
 	Bar->SetWorldRotation(_barRotation);
 
 	// Zero cola cans number
 	_colaCansCollected = 0;
+
+	UWiimoteFunctionLibrary::SetMotionSensingEnabled(0, true);
+	UWiimoteFunctionLibrary::SetMotionPlusEnabled(0, true);
 }
 
 void AKitesurfingSimulatorCharacter::Turn(float value)
@@ -172,7 +179,7 @@ void AKitesurfingSimulatorCharacter::TiltBarHorizontal(float value)
 	if (value != 0.0f)
 	{
 		// Add bar pitch rotation
-		_barRotation.Pitch = FMath::Clamp(_barRotation.Pitch - value * 2.0f, -80.0f, 80.0f);
+		_barYawRotation = FMath::Clamp(_barYawRotation + value * 2.0f, -45.0f, 45.0f);
 		_bRotatesManually = true;
 	}
 	else
@@ -196,24 +203,23 @@ void AKitesurfingSimulatorCharacter::Tick(float DeltaSeconds)
 	CollectCans();
 
 	//Calculate bar rotation pitch normalized
-	_prevBarPitchNormalized = _currentBarPitchNormalized;
-	_currentBarPitchNormalized = _barRotation.Pitch * _pitchToDirectionX;
+	_prevBarYawNormalized = _currentBarYawNormalized;
+	_currentBarYawNormalized = _barYawRotation * _yawToDirectionX;
 
 	// Calculate new actor forward vector
 	FVector actorForward = GetActorForwardVector();
-	actorForward.X += _currentBarPitchNormalized * DeltaSeconds;
+	actorForward.X += _currentBarYawNormalized * DeltaSeconds;
 	actorForward.Normalize();
 	SetActorRotation(actorForward.Rotation());
 
-	// Calculate bar yaw rotation and bar yaw multiplier
-	_barRotation.Yaw = GetActorRotation().Yaw + 90.0f;
 	_barYawMultiplier = 1.0f - (FMath::Abs(actorForward.X));
 
 	// If bar pitch wasn't affected in this frame then return to 0.0f
 	if (!_bRotatesManually)
 	{
-		_barRotation.Pitch = FMath::Lerp(_barRotation.Pitch, 0.0f, ReturnToBasePitchSpeed);
+		_barYawRotation = FMath::Lerp(_barYawRotation, 0.0f, ReturnToBaseYawSpeed);
 	}
+	_barRotation.Yaw = _barYawRotation + GetActorRotation().Yaw + 90.0f;
 	Bar->SetWorldRotation(_barRotation);
 
 	// Calculate current speed depending on bar roll rotation. Sin(realTimeSeconds)^2 is supposed to simulate wind somehow
@@ -254,4 +260,11 @@ void AKitesurfingSimulatorCharacter::CollectCans()
 	}
 
 	OnScreenMessage(4, 5.0f, FColor::Black, FString("Cola cans collected: ").Append(FString::FromInt(GetColaCansCollectedNumber())));
+}
+
+void AKitesurfingSimulatorCharacter::Tilt(FVector tilt)
+{
+	FVector tiltDiff = tilt - _prevTilt;
+	_prevTilt = tilt;
+	OnScreenMessage(123, 5.0f, FColor::Black, FString("Tilt diff: ").Append(tiltDiff.ToString()));
 }

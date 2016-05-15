@@ -47,13 +47,17 @@ protected:
 
 	// Bar controls
 	FRotator _barRotation;
-	float _prevBarPitchNormalized;
-	float _currentBarPitchNormalized;
-	const float _pitchToDirectionX = -1.0f / 80.0f;
+	float _prevBarYawNormalized;
+	float _currentBarYawNormalized;
+	float _barYawRotation;
+	const float _yawToDirectionX = -1.0f / 45.0f;
 	bool _bRotatesManually;
 
 	// Statistics
 	static int32 _colaCansCollected;
+
+	// Wiimote stuff
+	FVector _prevTilt;
 
 public:
 	AKitesurfingSimulatorCharacter();
@@ -62,9 +66,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Movement)
 		FVector SpeedConstraints;
 
-	// Determines how quickly bar should return to 0 pitch rotation
+	// Determines how quickly bar should return to 0 yaw rotation
 	UPROPERTY(EditAnywhere, Category = BarControls, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-		float ReturnToBasePitchSpeed;
+		float ReturnToBaseYawSpeed;
 
 	// Returns number of cola cans collected
 	static int32 GetColaCansCollectedNumber() { return _colaCansCollected; }
@@ -84,8 +88,6 @@ protected:
 	
 	void CollectCans();
 
-	void SetBoardUpVector();
-
 	// End of helper functions
 
 	// Input handlers
@@ -95,6 +97,8 @@ protected:
 
 	void TiltBarHorizontal(float value);
 	void TiltBarVertical(float value);
+
+	void Tilt(FVector tilt);
 
 	// End of input handlers
 

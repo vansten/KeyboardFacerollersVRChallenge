@@ -5,6 +5,9 @@
 	DO NOT modify this manually! Edit the corresponding .h files instead!
 ===========================================================================*/
 
+#ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorArrow_generated_h
+	#include "KitesurfingSimulatorArrow.h"
+#endif
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorCharacter_generated_h
 	#include "KitesurfingSimulatorCharacter.h"
 #endif

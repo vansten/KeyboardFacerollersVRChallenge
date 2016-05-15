@@ -12,11 +12,5 @@
 				"Engine"
 			]
 		}
-	],
-	"Plugins": [
-		{
-			"Name": "Wiimote",
-			"Enabled": true
-		}
 	]
 }
