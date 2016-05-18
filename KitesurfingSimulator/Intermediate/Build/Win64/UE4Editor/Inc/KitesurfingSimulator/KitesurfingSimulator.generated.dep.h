@@ -14,6 +14,9 @@
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorFishBase_generated_h
 	#include "KitesurfingSimulatorFishBase.h"
 #endif
+#ifndef KITESURFINGSIMULATOR_MyKitesurfingSimulatorOrca_generated_h
+	#include "MyKitesurfingSimulatorOrca.h"
+#endif
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorGameMode_generated_h
 	#include "KitesurfingSimulatorGameMode.h"
 #endif

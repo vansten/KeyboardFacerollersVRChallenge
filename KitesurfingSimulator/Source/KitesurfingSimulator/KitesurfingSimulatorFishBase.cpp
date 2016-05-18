@@ -30,6 +30,7 @@ void AKitesurfingSimulatorFishBase::BeginPlay()
 	_lerpRate = 0.0f;
 	_timeToCalculateTargetDirection = FMath::SRand() * 10.0f;
 	CalculateTargetDirection();
+	_zMultiplier = 0.05f;
 }
 
 // Called every frame
@@ -43,10 +44,7 @@ void AKitesurfingSimulatorFishBase::Tick( float DeltaTime )
 	_currentDirection = FMath::Lerp(_currentInitDirection, _currentTargetDirection, _lerpRate);
 	SetActorRotation(_currentDirection.Rotation());
 
-	FVector currentLocation = GetActorLocation();
-	currentLocation += _currentDirection * _speed * DeltaTime;
-	currentLocation.Z = FMath::Clamp(currentLocation.Z, 40.0f, 160.0f);
-	SetActorLocation(currentLocation);
+	MoveInCurrentDirection(DeltaTime);
 
 	if (_timeToCalculateTargetDirection <= 0.0f)
 	{
@@ -75,7 +73,7 @@ void AKitesurfingSimulatorFishBase::CalculateTargetDirection()
 	{
 		zDiff = FMath::SRand() - 0.5f;
 	}
-	zDiff *= 0.05f;
+	zDiff *= _zMultiplier;
 	_currentTargetDirection = _currentInitDirection;
 	_currentTargetDirection.X += xDiff;
 	_currentTargetDirection.Y += yDiff;
@@ -83,4 +81,12 @@ void AKitesurfingSimulatorFishBase::CalculateTargetDirection()
 	_currentTargetDirection.Normalize();
 	_timeToCalculateTargetDirection = FMath::SRand() * 10.0f;
 	_lerpRate = 0.0f;
+}
+
+void AKitesurfingSimulatorFishBase::MoveInCurrentDirection(float DeltaTime)
+{
+	FVector currentLocation = GetActorLocation();
+	currentLocation += _currentDirection * _speed * DeltaTime;
+	currentLocation.Z = FMath::Clamp(currentLocation.Z, 40.0f, 160.0f);
+	SetActorLocation(currentLocation);
 }

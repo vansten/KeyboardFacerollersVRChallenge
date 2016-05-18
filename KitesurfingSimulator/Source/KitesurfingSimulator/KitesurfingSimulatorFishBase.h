@@ -17,6 +17,7 @@ protected:
 	float _lerpRate;
 	float _timeToCalculateTargetDirection;
 	float _speed;
+	float _zMultiplier;
 
 public:
 	UPROPERTY(EditAnywhere, Category = Mesh)
@@ -34,8 +35,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Movement)
 	float SpeedMax;
 
-private:
+protected:
 	void CalculateTargetDirection();
+	void MoveInCurrentDirection(float DeltaTime);
 
 public:	
 	// Sets default values for this actor's properties
