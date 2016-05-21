@@ -2,6 +2,7 @@
 #pragma once
 #include "GameFramework/Character.h"
 #include "../Plugins/OceanPlugin/Source/OceanPlugin/Classes/OceanManager.h"
+#include "Runtime/Engine/Classes/Engine/TextRenderActor.h"
 #include "KitesurfingSimulatorCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -54,13 +55,20 @@ protected:
 	const float _yawToDirectionX = -1.0f / 45.0f;
 
 	// Statistics
+	static float _timePassed;
 	static int32 _colaCansCollected;
+
+	// State
+	bool _bSurfing;
 
 	// Wiimote stuff
 	FVector _tilt;
 
 public:
 	AKitesurfingSimulatorCharacter();
+
+	UPROPERTY(EditAnywhere, Category = Text)
+		ATextRenderActor* TextRender;
 
 	// X - min speed, Y - max speed
 	UPROPERTY(EditAnywhere, Category = Movement)
@@ -72,9 +80,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = BarControls)
 		bool bUsesWiimote;
-
-	// Returns number of cola cans collected
-	static int32 GetColaCansCollectedNumber() { return _colaCansCollected; }
 
 protected:
 	// Overriden functions
@@ -91,6 +96,8 @@ protected:
 	
 	void CollectCans();
 
+	void UpdateTextRender(bool bCongratulations = false);
+
 	// End of helper functions
 
 	// Input handlers
@@ -106,7 +113,22 @@ protected:
 
 	// End of input handlers
 
+	// State functions
+
+	void Surf(float DeltaSeconds);
+
+	void Party(float DeltaSeconds);
+
+	// End of state functions
+
 public:
 	// Returns FollowCamera subobject
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	// Returns number of cola cans collected
+	static int32 GetColaCansCollectedNumber() { return _colaCansCollected; }
+
+	static float GetTimePassed() { return _timePassed; }
+
+	void EndSurfing();
 };

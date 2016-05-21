@@ -8,11 +8,15 @@
 // Wiimote include
 #include "../Plugins/Wiimote/Source/Wiimote/Public/WiimoteFunctionLibrary.h"
 
+// Helpers include
+#include "KitesurfingSimulatorHelpers.h"
+
 //////////////////////////////////////////////////////////////////////////
 // AKitesurfingSimulatorCharacter
 
 // Static variables
 int32 AKitesurfingSimulatorCharacter::_colaCansCollected = 0;
+float AKitesurfingSimulatorCharacter::_timePassed = 0.0f;
 
 AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 {
@@ -116,9 +120,19 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 				break;
 			}
 		}
+
+		for (TActorIterator<ATextRenderActor> Itr(GWorld); Itr; ++Itr)
+		{
+			TextRender = (*Itr);
+			if (TextRender != NULL)
+			{
+				break;
+			}
+		}
 	}
 
 	check(_oceanManager != NULL && "Have you placed ocean manager on map somewhere?");
+	check(TextRender != NULL && "Have you placed actor with TextRender component on map somewhere?");
 
 	// Find camera yaw and pitch restrictions
 	FRotator followCameraRotation = FollowCamera->GetComponentRotation();
@@ -154,8 +168,12 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 	_barYawRotation = 0.0f;
 	Bar->SetWorldRotation(_barRotation);
 
-	// Zero cola cans number
+	// Zero cola cans number && timer
 	_colaCansCollected = 0;
+	_timePassed = 0.0f;
+
+	// Start surfing
+	_bSurfing = true;
 }
 
 void AKitesurfingSimulatorCharacter::Turn(float value)
@@ -206,6 +224,40 @@ void AKitesurfingSimulatorCharacter::TiltBarVertical(float value)
 
 void AKitesurfingSimulatorCharacter::Tick(float DeltaSeconds)
 {
+	if (_bSurfing)
+	{
+		Surf(DeltaSeconds);
+	}
+	else
+	{
+		Party(DeltaSeconds);
+	}
+}
+
+void AKitesurfingSimulatorCharacter::CollectCans()
+{
+	TArray<AActor*> OverlappingActors;
+	GetCapsuleComponent()->GetOverlappingActors(OverlappingActors, AKitesurfingSimulatorPickable::StaticClass());
+
+	AKitesurfingSimulatorPickable* pickable = NULL;
+	int32 size = OverlappingActors.Num();
+	for (int32 i = 0; i < size; ++i)
+	{
+		pickable = Cast<AKitesurfingSimulatorPickable>(OverlappingActors[i]);
+		if (pickable != NULL)
+		{
+			_colaCansCollected += 1;
+			pickable->Collect();
+		}
+	}
+
+	UpdateTextRender();
+}
+
+void AKitesurfingSimulatorCharacter::Surf(float DeltaSeconds)
+{
+	_timePassed += DeltaSeconds;
+
 	CollectCans();
 
 	float barYawClamped = FMath::Clamp(_barYawRotation, -45.0f, 45.0f);
@@ -245,24 +297,9 @@ void AKitesurfingSimulatorCharacter::Tick(float DeltaSeconds)
 	OnScreenMessage(1, 5.0f, FColor::Red, FString("Current speed: ").Append(FString::SanitizeFloat(_currentSpeed)));
 }
 
-void AKitesurfingSimulatorCharacter::CollectCans()
+void AKitesurfingSimulatorCharacter::Party(float DeltaSeconds)
 {
-	TArray<AActor*> OverlappingActors;
-	GetCapsuleComponent()->GetOverlappingActors(OverlappingActors, AKitesurfingSimulatorPickable::StaticClass());
-
-	AKitesurfingSimulatorPickable* pickable = NULL;
-	int32 size = OverlappingActors.Num();
-	for (int32 i = 0; i < size; ++i)
-	{
-		pickable = Cast<AKitesurfingSimulatorPickable>(OverlappingActors[i]);
-		if (pickable != NULL)
-		{
-			_colaCansCollected += 1;
-			pickable->Collect();
-		}
-	}
-
-	OnScreenMessage(4, 5.0f, FColor::Black, FString("Cola cans collected: ").Append(FString::FromInt(GetColaCansCollectedNumber())));
+	OnScreenMessage(0, 5.0f, FColor::Blue, FString("It's time to party"));
 }
 
 void AKitesurfingSimulatorCharacter::Tilt(FVector tilt)
@@ -291,4 +328,37 @@ void AKitesurfingSimulatorCharacter::RotationRate(FVector rotationRate)
 
 	z *= -FMath::Sign(_tilt.X);
 	_barYawRotation += z;
+}
+
+void AKitesurfingSimulatorCharacter::EndSurfing()
+{
+	_bSurfing = false;
+
+	GetMesh()->AttachTo(RootComponent);
+	Board->SetHiddenInGame(true);
+	Bar->SetHiddenInGame(true);
+	Lines->SetHiddenInGame(true);
+	Kite->SetHiddenInGame(true);
+
+	UpdateTextRender(true);
+}
+
+void AKitesurfingSimulatorCharacter::UpdateTextRender(bool bCongratulations /* = false */)
+{
+	FString text = FString("Collected ");
+	text.Append(FString::FromInt(GetColaCansCollectedNumber()));
+	text.Append(" cans");
+	text.Append(FString("<br>"));
+	text.Append(FString("Time: "));
+	text.Append(UKitesurfingSimulatorHelpers::FloatToStringWithPrecision(GetTimePassed(), 2));
+	text.Append(" ms");
+	if (bCongratulations)
+	{
+		text.Append(FString("<br>Congratulations!"));
+	}
+
+	if (TextRender != NULL)
+	{
+		TextRender->GetTextRender()->SetText(text);
+	}
 }

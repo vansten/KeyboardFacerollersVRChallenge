@@ -11,6 +11,9 @@
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorCharacter_generated_h
 	#include "KitesurfingSimulatorCharacter.h"
 #endif
+#ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorEndTrigger_generated_h
+	#include "KitesurfingSimulatorEndTrigger.h"
+#endif
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorFishBase_generated_h
 	#include "KitesurfingSimulatorFishBase.h"
 #endif
@@ -19,6 +22,9 @@
 #endif
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorGameMode_generated_h
 	#include "KitesurfingSimulatorGameMode.h"
+#endif
+#ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorHelpers_generated_h
+	#include "KitesurfingSimulatorHelpers.h"
 #endif
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorPickable_generated_h
 	#include "KitesurfingSimulatorPickable.h"
