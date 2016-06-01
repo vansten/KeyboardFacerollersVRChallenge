@@ -63,6 +63,10 @@ protected:
 
 	// Wiimote stuff
 	FVector _tilt;
+	
+	// HMD stuff
+	FRotator _baseRotation;
+	FVector _hmdLocation; /* Unused but necessary */
 
 public:
 	AKitesurfingSimulatorCharacter();
@@ -80,6 +84,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = BarControls)
 		bool bUsesWiimote;
+
+	UPROPERTY(EditAnywhere, Category = VR)
+		bool bUsesHMD;
 
 protected:
 	// Overriden functions

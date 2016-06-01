@@ -7,15 +7,15 @@
     <Property Name="Precompile" Value="False" />
   </Properties>
   <BuildProducts>
-    <BuildProduct Path="$(ProjectDir)\Plugins\OceanPlugin\Binaries\Win64\UE4Editor-OceanPlugin-6323.dll" Type="DynamicLibrary" />
-    <BuildProduct Path="$(ProjectDir)\Plugins\OceanPlugin\Binaries\Win64\UE4Editor-OceanPlugin-6323.pdb" Type="SymbolFile" />
-    <BuildProduct Path="$(ProjectDir)\Plugins\OceanPlugin\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-OceanPlugin-6323.lib" Type="ImportLibrary" />
-    <BuildProduct Path="$(ProjectDir)\Plugins\Wiimote\Binaries\Win64\UE4Editor-Wiimote-6243.dll" Type="DynamicLibrary" />
-    <BuildProduct Path="$(ProjectDir)\Plugins\Wiimote\Binaries\Win64\UE4Editor-Wiimote-6243.pdb" Type="SymbolFile" />
-    <BuildProduct Path="$(ProjectDir)\Plugins\Wiimote\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Wiimote-6243.lib" Type="ImportLibrary" />
-    <BuildProduct Path="$(ProjectDir)\Binaries\Win64\UE4Editor-KitesurfingSimulator-6114.dll" Type="DynamicLibrary" />
-    <BuildProduct Path="$(ProjectDir)\Binaries\Win64\UE4Editor-KitesurfingSimulator-6114.pdb" Type="SymbolFile" />
-    <BuildProduct Path="$(ProjectDir)\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-KitesurfingSimulator-6114.lib" Type="ImportLibrary" />
+    <BuildProduct Path="$(ProjectDir)\Plugins\OceanPlugin\Binaries\Win64\UE4Editor-OceanPlugin.dll" Type="DynamicLibrary" />
+    <BuildProduct Path="$(ProjectDir)\Plugins\OceanPlugin\Binaries\Win64\UE4Editor-OceanPlugin.pdb" Type="SymbolFile" />
+    <BuildProduct Path="$(ProjectDir)\Plugins\OceanPlugin\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-OceanPlugin.lib" Type="ImportLibrary" />
+    <BuildProduct Path="$(ProjectDir)\Plugins\Wiimote\Binaries\Win64\UE4Editor-Wiimote.dll" Type="DynamicLibrary" />
+    <BuildProduct Path="$(ProjectDir)\Plugins\Wiimote\Binaries\Win64\UE4Editor-Wiimote.pdb" Type="SymbolFile" />
+    <BuildProduct Path="$(ProjectDir)\Plugins\Wiimote\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Wiimote.lib" Type="ImportLibrary" />
+    <BuildProduct Path="$(ProjectDir)\Binaries\Win64\UE4Editor-KitesurfingSimulator.dll" Type="DynamicLibrary" />
+    <BuildProduct Path="$(ProjectDir)\Binaries\Win64\UE4Editor-KitesurfingSimulator.pdb" Type="SymbolFile" />
+    <BuildProduct Path="$(ProjectDir)\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-KitesurfingSimulator.lib" Type="ImportLibrary" />
   </BuildProducts>
   <RuntimeDependencies>
     <RuntimeDependency Path="$(EngineDir)/Binaries/ThirdParty/PhysX/PhysX-3.3/Win64/VS2015/PhysX3PROFILE_x64.dll" />

@@ -8,6 +8,9 @@
 // Wiimote include
 #include "../Plugins/Wiimote/Source/Wiimote/Public/WiimoteFunctionLibrary.h"
 
+// HMD include
+#include "Runtime/HeadMountedDisplay/Public/IHeadMountedDisplay.h"
+
 // Helpers include
 #include "KitesurfingSimulatorHelpers.h"
 
@@ -90,8 +93,11 @@ void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputCompo
 	// Set up gameplay key bindings
 	check(InputComponent);
 
-	InputComponent->BindAxis("Turn", this, &AKitesurfingSimulatorCharacter::Turn);
-	InputComponent->BindAxis("LookUp", this, &AKitesurfingSimulatorCharacter::LookUp);
+	if (!bUsesHMD)
+	{
+		InputComponent->BindAxis("Turn", this, &AKitesurfingSimulatorCharacter::Turn);
+		InputComponent->BindAxis("LookUp", this, &AKitesurfingSimulatorCharacter::LookUp);
+	}
 	
 	if (bUsesWiimote)
 	{
@@ -128,6 +134,21 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 			{
 				break;
 			}
+		}
+	}
+
+	if (bUsesHMD)
+	{
+		if (GEngine->HMDDevice.IsValid())
+		{
+			UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(_baseRotation, _hmdLocation);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("You're trying to use HMD and didn't connect one. Are you stupid or something? HMD functionality disabled"));
+			bUsesHMD = false;
+			InputComponent->BindAxis("Turn", this, &AKitesurfingSimulatorCharacter::Turn);
+			InputComponent->BindAxis("LookUp", this, &AKitesurfingSimulatorCharacter::LookUp);
 		}
 	}
 
@@ -219,11 +240,21 @@ void AKitesurfingSimulatorCharacter::TiltBarVertical(float value)
 		_barRollRotation = FMath::Clamp(_barRollRotation - value * 2.0f, -75.0f, -5.0f);
 		_barRotation.Roll = _barRollRotation;
 		_barRollMultiplier = FMath::Sin(FMath::DegreesToRadians(FMath::Abs(_barRotation.Roll)) * 2.0f);
-	}
+	}	
 }
 
 void AKitesurfingSimulatorCharacter::Tick(float DeltaSeconds)
 {
+	if (bUsesHMD)
+	{
+		FRotator rotation;
+		UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(rotation, _hmdLocation);
+		
+		float add = GetActorRotation().Yaw + 45.0f;
+		rotation.Yaw += add;
+		FollowCamera->SetWorldRotation(rotation);
+	}
+
 	if (_bSurfing)
 	{
 		Surf(DeltaSeconds);
@@ -323,10 +354,11 @@ void AKitesurfingSimulatorCharacter::RotationRate(FVector rotationRate)
 
 	if (_barRotation.Roll < -50.0f)
 	{
-		z *= -(_barRotation.Roll + 50.0f) * 0.3f;
+		z *= -(_barRotation.Roll + 50.0f);
 	}
 
 	z *= -FMath::Sign(_tilt.X);
+
 	_barYawRotation += z;
 }
 
