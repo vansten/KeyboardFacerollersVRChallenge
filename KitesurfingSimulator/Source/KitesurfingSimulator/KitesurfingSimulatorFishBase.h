@@ -18,6 +18,8 @@ protected:
 	float _timeToCalculateTargetDirection;
 	float _speed;
 	float _zMultiplier;
+	float _minZ;
+	float _maxZ;
 
 public:
 	UPROPERTY(EditAnywhere, Category = Mesh)

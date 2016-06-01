@@ -20,6 +20,7 @@
 // Static variables
 int32 AKitesurfingSimulatorCharacter::_colaCansCollected = 0;
 float AKitesurfingSimulatorCharacter::_timePassed = 0.0f;
+AOceanManager* AKitesurfingSimulatorCharacter::OceanManager = NULL;
 
 AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 {
@@ -92,12 +93,9 @@ void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputCompo
 {
 	// Set up gameplay key bindings
 	check(InputComponent);
-
-	if (!bUsesHMD)
-	{
-		InputComponent->BindAxis("Turn", this, &AKitesurfingSimulatorCharacter::Turn);
-		InputComponent->BindAxis("LookUp", this, &AKitesurfingSimulatorCharacter::LookUp);
-	}
+	
+	InputComponent->BindAxis("Turn", this, &AKitesurfingSimulatorCharacter::Turn);
+	InputComponent->BindAxis("LookUp", this, &AKitesurfingSimulatorCharacter::LookUp);
 	
 	if (bUsesWiimote)
 	{
@@ -122,7 +120,7 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 		{
 			if ((*ActorItr) != NULL)
 			{
-				_oceanManager = (*ActorItr);
+				OceanManager = (*ActorItr);
 				break;
 			}
 		}
@@ -147,12 +145,10 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 		{
 			UE_LOG(LogTemp, Error, TEXT("You're trying to use HMD and didn't connect one. Are you stupid or something? HMD functionality disabled"));
 			bUsesHMD = false;
-			InputComponent->BindAxis("Turn", this, &AKitesurfingSimulatorCharacter::Turn);
-			InputComponent->BindAxis("LookUp", this, &AKitesurfingSimulatorCharacter::LookUp);
 		}
 	}
 
-	check(_oceanManager != NULL && "Have you placed ocean manager on map somewhere?");
+	check(OceanManager != NULL && "Have you placed ocean manager on map somewhere?");
 	check(TextRender != NULL && "Have you placed actor with TextRender component on map somewhere?");
 
 	// Find camera yaw and pitch restrictions
@@ -199,6 +195,11 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 
 void AKitesurfingSimulatorCharacter::Turn(float value)
 {
+	if (bUsesHMD)
+	{
+		return;
+	}
+
 	if (value != 0.0f)
 	{
 		// Add camera yaw rotation
@@ -212,6 +213,11 @@ void AKitesurfingSimulatorCharacter::Turn(float value)
 
 void AKitesurfingSimulatorCharacter::LookUp(float value)
 {
+	if (bUsesHMD)
+	{
+		return;
+	}
+
 	if (value != 0.0f)
 	{
 		// Add camera pitch rotation
@@ -313,10 +319,10 @@ void AKitesurfingSimulatorCharacter::Surf(float DeltaSeconds)
 	_currentSpeed *= _barYawMultiplier;
 
 	// Affect actor's location depending on waves
-	if (_oceanManager)
+	if (OceanManager)
 	{
 		FVector currentActorLocation = GetActorLocation();
-		currentActorLocation.Z = _oceanManager->GetWaveHeightValue(currentActorLocation, GWorld, true, true).Z + 90.0f;
+		currentActorLocation.Z = OceanManager->GetWaveHeightValue(currentActorLocation, GWorld, true, true).Z + 90.0f;
 		SetActorLocation(currentActorLocation);
 	}
 

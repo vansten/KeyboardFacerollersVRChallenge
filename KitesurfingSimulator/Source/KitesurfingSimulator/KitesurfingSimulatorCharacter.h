@@ -28,9 +28,6 @@ class AKitesurfingSimulatorCharacter : public ACharacter
 		UStaticMeshComponent* Kite;
 
 protected:
-	// Ocean manager instance
-	class AOceanManager* _oceanManager;
-
 	// Camera controls
 	float _yawRotation;
 	float _minimumYaw;
@@ -87,6 +84,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = VR)
 		bool bUsesHMD;
+
+	// Ocean manager instance (static because other classes also may want to use it)
+	static class AOceanManager* OceanManager;
 
 protected:
 	// Overriden functions

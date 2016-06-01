@@ -31,6 +31,8 @@ void AKitesurfingSimulatorFishBase::BeginPlay()
 	_timeToCalculateTargetDirection = FMath::SRand() * 10.0f;
 	CalculateTargetDirection();
 	_zMultiplier = 0.05f;
+	_minZ = 40.0f;
+	_maxZ = 160.0f;
 }
 
 // Called every frame
@@ -87,6 +89,6 @@ void AKitesurfingSimulatorFishBase::MoveInCurrentDirection(float DeltaTime)
 {
 	FVector currentLocation = GetActorLocation();
 	currentLocation += _currentDirection * _speed * DeltaTime;
-	currentLocation.Z = FMath::Clamp(currentLocation.Z, 40.0f, 160.0f);
+	currentLocation.Z = FMath::Clamp(currentLocation.Z, _minZ, _maxZ);
 	SetActorLocation(currentLocation);
 }

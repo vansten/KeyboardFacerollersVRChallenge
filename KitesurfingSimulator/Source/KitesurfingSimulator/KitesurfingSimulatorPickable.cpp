@@ -38,8 +38,14 @@ void AKitesurfingSimulatorPickable::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	FVector offset = FVector(0.0f, 0.0f, FMath::Sin(GWorld->GetRealTimeSeconds() * 5.0f) * 15.0f);
-	SetActorLocation(BaseActorLocation + offset);
+	//FVector offset = FVector(0.0f, 0.0f, FMath::Sin(GWorld->GetRealTimeSeconds() * 5.0f) * 15.0f);
+	//SetActorLocation(BaseActorLocation + offset);
+	if (AKitesurfingSimulatorCharacter::OceanManager)
+	{
+		FVector currentActorLocation = GetActorLocation();
+		currentActorLocation.Z = AKitesurfingSimulatorCharacter::OceanManager->GetWaveHeightValue(currentActorLocation, GWorld, true, true).Z - 50.0f;
+		SetActorLocation(currentActorLocation);
+	}
 }
 
 void AKitesurfingSimulatorPickable::Collect()

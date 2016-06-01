@@ -6,11 +6,13 @@
 void AMyKitesurfingSimulatorOrca::BeginPlay()
 {
 	Super::BeginPlay();
-	_timeToJump = FMath::FRand() * 20.0f;
+	_timeToJump = FMath::FRand() * 20.0f + 10.0f;
 	_bSwimming = true;
 	_animInstance = Mesh->GetAnimInstance();
 	_zMultiplier = 0.0f;
 	_jumpingProperty = FindField<UBoolProperty>(_animInstance->GetClass(), "Jumping");
+	_minZ = -100.0f;
+	_maxZ = 100.0f;
 }
 
 void AMyKitesurfingSimulatorOrca::Tick(float DeltaSeconds)
@@ -42,5 +44,5 @@ void AMyKitesurfingSimulatorOrca::Jump()
 	_speed *= 2.0f;
 	_bSwimming = false;
 	_jumpingProperty->SetPropertyValue_InContainer(_animInstance, true);
-	_timeToJump = FMath::FRand() * 30.0f;
+	_timeToJump = FMath::FRand() * 20.0f + 10.0f;
 }
