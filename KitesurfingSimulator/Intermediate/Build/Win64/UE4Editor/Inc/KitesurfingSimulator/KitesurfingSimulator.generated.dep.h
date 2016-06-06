@@ -29,3 +29,6 @@
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorPickable_generated_h
 	#include "KitesurfingSimulatorPickable.h"
 #endif
+#ifndef KITESURFINGSIMULATOR_WiimoteBlueprintLibrary_generated_h
+	#include "WiimoteBlueprintLibrary.h"
+#endif

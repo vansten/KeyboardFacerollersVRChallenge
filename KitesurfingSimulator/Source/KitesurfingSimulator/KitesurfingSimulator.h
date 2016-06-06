@@ -5,6 +5,8 @@
 
 #include "Engine.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(Wiimote, Log, All);
+
 void OnScreenMessage(int32 key, float duration, FColor color, const FString& message);
 
 #endif

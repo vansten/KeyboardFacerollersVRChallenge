@@ -5,14 +5,14 @@
 #include "KitesurfingSimulatorPickable.h"
 #include "EngineUtils.h"
 
-// Wiimote include
-#include "../Plugins/Wiimote/Source/Wiimote/Public/WiimoteFunctionLibrary.h"
-
 // HMD include
 #include "Runtime/HeadMountedDisplay/Public/IHeadMountedDisplay.h"
 
 // Helpers include
 #include "KitesurfingSimulatorHelpers.h"
+
+// Wiimote include
+#include "WiimoteBlueprintLibrary.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AKitesurfingSimulatorCharacter
@@ -84,9 +84,6 @@ AKitesurfingSimulatorCharacter::AKitesurfingSimulatorCharacter()
 	FollowCamera->AttachTo(mesh);
 	FollowCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f) + meshForward * 35.0f);
 	FollowCamera->SetRelativeRotation(GetActorForwardVector().Rotation());
-
-	UWiimoteFunctionLibrary::SetMotionSensingEnabled(0, true);
-	UWiimoteFunctionLibrary::SetMotionPlusEnabled(0, true);
 }
 
 void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
@@ -96,16 +93,21 @@ void AKitesurfingSimulatorCharacter::SetupPlayerInputComponent(class UInputCompo
 	
 	InputComponent->BindAxis("Turn", this, &AKitesurfingSimulatorCharacter::Turn);
 	InputComponent->BindAxis("LookUp", this, &AKitesurfingSimulatorCharacter::LookUp);
-	
+
 	if (bUsesWiimote)
 	{
-		InputComponent->BindVectorAxis(EKeys::Tilt, this, &AKitesurfingSimulatorCharacter::Tilt);
-		InputComponent->BindVectorAxis(EKeys::RotationRate, this, &AKitesurfingSimulatorCharacter::RotationRate);
+		bUsesWiimote = UWiimoteBlueprintLibrary::Connect();
+		if (bUsesWiimote)
+		{
+			_baseYaw = UWiimoteBlueprintLibrary::GetMotionPlusSpeed().Pitch;
+		}
 	}
-	else
+
+	if (!bUsesWiimote)
 	{
 		InputComponent->BindAxis("TiltBarHorizontal", this, &AKitesurfingSimulatorCharacter::TiltBarHorizontal);
 		InputComponent->BindAxis("TiltBarVertical", this, &AKitesurfingSimulatorCharacter::TiltBarVertical);
+		OnScreenMessage(98765, 10.0f, FColor::Red, FString("Wiimote not connected"));
 	}
 }
 
@@ -191,6 +193,11 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 
 	// Start surfing
 	_bSurfing = true;
+}
+
+void AKitesurfingSimulatorCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	UWiimoteBlueprintLibrary::Disconnect();
 }
 
 void AKitesurfingSimulatorCharacter::Turn(float value)
@@ -293,6 +300,17 @@ void AKitesurfingSimulatorCharacter::CollectCans()
 
 void AKitesurfingSimulatorCharacter::Surf(float DeltaSeconds)
 {
+	if (bUsesWiimote)
+	{
+		static float normalize = 1.0f / 90.0f;
+		float toAdd = (UWiimoteBlueprintLibrary::GetMotionPlusSpeed().Pitch - _baseYaw) * normalize;
+		if (FMath::Abs(toAdd) < Tolerance)
+		{
+			toAdd = 0.0f;
+		}
+		_barYawRotation += toAdd;
+	}
+
 	_timePassed += DeltaSeconds;
 
 	CollectCans();
@@ -339,35 +357,6 @@ void AKitesurfingSimulatorCharacter::Party(float DeltaSeconds)
 	OnScreenMessage(0, 5.0f, FColor::Blue, FString("It's time to party"));
 }
 
-void AKitesurfingSimulatorCharacter::Tilt(FVector tilt)
-{
-	_tilt = tilt;
-
-	_barRollRotation = -_tilt.X - 90.0f;
-	_barRotation.Roll = FMath::Clamp(_barRollRotation, -75.0f, -5.0f);
-	_barRollMultiplier = FMath::Sin(FMath::DegreesToRadians(FMath::Abs(_barRotation.Roll)) * 2.0f);
-}
-
-void AKitesurfingSimulatorCharacter::RotationRate(FVector rotationRate)
-{
-	static float normalize = 1.0f / 180.0f;
-	float z = -(rotationRate.Z) * normalize;
-	
-	if (FMath::Abs(z) < Tolerance)
-	{
-		z = 0.0f;
-	}
-
-	if (_barRotation.Roll < -50.0f)
-	{
-		z *= -(_barRotation.Roll + 50.0f);
-	}
-
-	z *= -FMath::Sign(_tilt.X);
-
-	_barYawRotation += z;
-}
-
 void AKitesurfingSimulatorCharacter::EndSurfing()
 {
 	_bSurfing = false;
@@ -397,6 +386,6 @@ void AKitesurfingSimulatorCharacter::UpdateTextRender(bool bCongratulations /* =
 
 	if (TextRender != NULL)
 	{
-		TextRender->GetTextRender()->SetText(text);
+		TextRender->GetTextRender()->SetText(FText::FromString(text));
 	}
 }

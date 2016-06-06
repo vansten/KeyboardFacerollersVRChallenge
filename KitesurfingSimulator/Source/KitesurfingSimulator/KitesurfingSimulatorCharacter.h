@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "../Plugins/OceanPlugin/Source/OceanPlugin/Classes/OceanManager.h"
 #include "Runtime/Engine/Classes/Engine/TextRenderActor.h"
+
 #include "KitesurfingSimulatorCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -59,7 +60,7 @@ protected:
 	bool _bSurfing;
 
 	// Wiimote stuff
-	FVector _tilt;
+	float _baseYaw;
 	
 	// HMD stuff
 	FRotator _baseRotation;
@@ -95,6 +96,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
+
 	virtual void Tick(float DeltaSeconds) override;
 
 	// End of overriden functions
@@ -114,9 +117,6 @@ protected:
 
 	void TiltBarHorizontal(float value);
 	void TiltBarVertical(float value);
-
-	void Tilt(FVector tilt);
-	void RotationRate(FVector rotationRate);
 
 	// End of input handlers
 
