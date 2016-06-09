@@ -115,28 +115,6 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Find ocean manager instance
-	if (GWorld)
-	{
-		for (TActorIterator<AOceanManager> ActorItr(GWorld); ActorItr; ++ActorItr)
-		{
-			if ((*ActorItr) != NULL)
-			{
-				OceanManager = (*ActorItr);
-				break;
-			}
-		}
-
-		for (TActorIterator<ATextRenderActor> Itr(GWorld); Itr; ++Itr)
-		{
-			TextRender = (*Itr);
-			if (TextRender != NULL)
-			{
-				break;
-			}
-		}
-	}
-
 	if (bUsesHMD)
 	{
 		if (GEngine->HMDDevice.IsValid())
@@ -150,8 +128,8 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 		}
 	}
 
-	check(OceanManager != NULL && "Have you placed ocean manager on map somewhere?");
-	check(TextRender != NULL && "Have you placed actor with TextRender component on map somewhere?");
+	//check(OceanManager != NULL && "Have you placed ocean manager on map somewhere?");
+	//check(TextRender != NULL && "Have you placed actor with TextRender component on map somewhere?");
 
 	// Find camera yaw and pitch restrictions
 	FRotator followCameraRotation = FollowCamera->GetComponentRotation();
@@ -198,6 +176,8 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 void AKitesurfingSimulatorCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
 	UWiimoteBlueprintLibrary::Disconnect();
+	OceanManager = NULL;
+	TextRender = NULL;
 }
 
 void AKitesurfingSimulatorCharacter::Turn(float value)
@@ -337,11 +317,22 @@ void AKitesurfingSimulatorCharacter::Surf(float DeltaSeconds)
 	_currentSpeed *= _barYawMultiplier;
 
 	// Affect actor's location depending on waves
-	if (OceanManager)
+	if (OceanManager != NULL)
 	{
 		FVector currentActorLocation = GetActorLocation();
 		currentActorLocation.Z = OceanManager->GetWaveHeightValue(currentActorLocation, GWorld, true, true).Z + 90.0f;
 		SetActorLocation(currentActorLocation);
+	}
+	else
+	{
+		for (TActorIterator<AOceanManager> ActorItr(GWorld); ActorItr; ++ActorItr)
+		{
+			if ((*ActorItr) != NULL)
+			{
+				OceanManager = (*ActorItr);
+				break;
+			}
+		}
 	}
 
 	// Add speed in real direction
@@ -372,6 +363,18 @@ void AKitesurfingSimulatorCharacter::EndSurfing()
 
 void AKitesurfingSimulatorCharacter::UpdateTextRender(bool bCongratulations /* = false */)
 {
+	if (TextRender == NULL)
+	{
+		for (TActorIterator<ATextRenderActor> Itr(GWorld); Itr; ++Itr)
+		{
+			TextRender = (*Itr);
+			if (TextRender != NULL)
+			{
+				break;
+			}
+		}
+	}
+
 	FString text = FString("Collected ");
 	text.Append(FString::FromInt(GetColaCansCollectedNumber()));
 	text.Append(" cans");

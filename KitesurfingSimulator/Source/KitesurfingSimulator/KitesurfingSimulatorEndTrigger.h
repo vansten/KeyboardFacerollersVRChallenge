@@ -25,8 +25,6 @@ public:
 	// Sets default values for this actor's properties
 	AKitesurfingSimulatorEndTrigger();
 
-	virtual void BeginPlay() override;
-
 	UFUNCTION()
 		void OnBeginOverlap(class AActor* otherActor, class UPrimitiveComponent* otherComponent, int32 otherBodyIndex, bool bSweep, const FHitResult& hitResult);
 };

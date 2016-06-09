@@ -19,20 +19,6 @@ AKitesurfingSimulatorEndTrigger::AKitesurfingSimulatorEndTrigger()
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AKitesurfingSimulatorEndTrigger::OnBeginOverlap);
 }
 
-void AKitesurfingSimulatorEndTrigger::BeginPlay()
-{
-	for (TActorIterator<AKitesurfingSimulatorArrow> Itr(GetWorld()); Itr; ++Itr)
-	{
-		Arrow = (*Itr);
-		if (Arrow != NULL)
-		{
-			break;
-		}
-	}
-
-	check(Arrow != NULL && "Have you placed an arrow on map somewhere?");
-}
-
 void AKitesurfingSimulatorEndTrigger::OnBeginOverlap(AActor* otherActor, UPrimitiveComponent* otherComponent, int32 otherBodyIndex, bool bSweep, const FHitResult& hitResult)
 {
 	AKitesurfingSimulatorCharacter* player = Cast<AKitesurfingSimulatorCharacter>(otherActor);
@@ -42,6 +28,15 @@ void AKitesurfingSimulatorEndTrigger::OnBeginOverlap(AActor* otherActor, UPrimit
 		if (playerCapsule != NULL)
 		{
 			player->EndSurfing();
+
+			for (TActorIterator<AKitesurfingSimulatorArrow> Itr(GetWorld()); Itr; ++Itr)
+			{
+				Arrow = (*Itr);
+				if (Arrow != NULL)
+				{
+					break;
+				}
+			}
 
 			if (Arrow != NULL)
 			{
