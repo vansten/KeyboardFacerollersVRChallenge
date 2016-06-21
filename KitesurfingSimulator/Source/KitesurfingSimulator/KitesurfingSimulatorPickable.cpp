@@ -29,8 +29,6 @@ AKitesurfingSimulatorPickable::AKitesurfingSimulatorPickable()
 void AKitesurfingSimulatorPickable::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	BaseActorLocation = GetActorLocation();
 }
 
 // Called every frame
@@ -38,8 +36,6 @@ void AKitesurfingSimulatorPickable::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	//FVector offset = FVector(0.0f, 0.0f, FMath::Sin(GWorld->GetRealTimeSeconds() * 5.0f) * 15.0f);
-	//SetActorLocation(BaseActorLocation + offset);
 	if (AKitesurfingSimulatorCharacter::OceanManager)
 	{
 		FVector currentActorLocation = GetActorLocation();

@@ -15,6 +15,9 @@ public:
 	AKitesurfingSimulatorGameMode();
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable, Category = Reset)
+		void ResetGame();
 };
 
 

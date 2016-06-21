@@ -36,3 +36,7 @@ void AKitesurfingSimulatorArrow::Tick( float DeltaTime )
 
 }
 
+void AKitesurfingSimulatorArrow::ResetObject()
+{
+	SetActorHiddenInGame(false);
+}

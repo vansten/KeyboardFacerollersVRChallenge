@@ -3,10 +3,11 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "Resetable.h"
 #include "KitesurfingSimulatorArrow.generated.h"
 
 UCLASS()
-class KITESURFINGSIMULATOR_API AKitesurfingSimulatorArrow : public AActor
+class KITESURFINGSIMULATOR_API AKitesurfingSimulatorArrow : public AActor, public IResetable
 {
 	GENERATED_BODY()
 
@@ -25,6 +26,8 @@ public:
 	
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
+
+	virtual void ResetObject() override;
 
 	UPROPERTY(EditAnywhere, Category = Movement)
 		float Speed;

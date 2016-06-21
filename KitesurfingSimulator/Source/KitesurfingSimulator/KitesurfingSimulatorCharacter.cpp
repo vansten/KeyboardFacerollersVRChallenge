@@ -115,6 +115,31 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Setup();
+
+	FRotator followCameraRotation = FollowCamera->GetComponentRotation();
+	FRotator actorRotation = GetActorRotation();
+
+	_initRotation = actorRotation;
+	_initLocation = GetActorLocation();
+	_initScale = GetActorScale();
+
+	_yawRotation = followCameraRotation.Yaw - actorRotation.Yaw;
+	_minimumYaw = _yawRotation - 105.0f;
+	_maximumYaw = _yawRotation + 105.0f;
+
+	_pitchRotation = followCameraRotation.Pitch - actorRotation.Pitch;
+	_minimumPitch = _pitchRotation - 89.9f;
+	_maximumPitch = _pitchRotation + 89.9f;
+
+	// Set proper camera yaw and pitch rotations
+	_yawRotation = FMath::Clamp(_yawRotation - 75.0f, _minimumYaw, _maximumYaw);
+	followCameraRotation.Yaw = _yawRotation + GetActorRotation().Yaw;
+	FollowCamera->SetWorldRotation(followCameraRotation);
+}
+
+void AKitesurfingSimulatorCharacter::Setup()
+{
 	if (bUsesHMD)
 	{
 		if (GEngine->HMDDevice.IsValid())
@@ -128,25 +153,10 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 		}
 	}
 
-	//check(OceanManager != NULL && "Have you placed ocean manager on map somewhere?");
-	//check(TextRender != NULL && "Have you placed actor with TextRender component on map somewhere?");
-
 	// Find camera yaw and pitch restrictions
 	FRotator followCameraRotation = FollowCamera->GetComponentRotation();
 	FRotator actorRotation = GetActorRotation();
 
-	_yawRotation = followCameraRotation.Yaw - actorRotation.Yaw;
-	_minimumYaw = _yawRotation - 105.0f;
-	_maximumYaw = _yawRotation + 105.0f;
-
-	_pitchRotation = followCameraRotation.Pitch - actorRotation.Pitch;
-	_minimumPitch = _pitchRotation - 89.9f;
-	_maximumPitch = _pitchRotation + 89.9f;
-
-	// Set proper camera yaw and pitch rotations
-	_yawRotation = FMath::Clamp(_yawRotation - 75.0f, _minimumYaw, _maximumYaw);
-	followCameraRotation.Yaw = _yawRotation + GetActorRotation().Yaw;
-	
 	_pitchRotation = FMath::Clamp(_pitchRotation, _minimumPitch, _maximumPitch);
 	followCameraRotation.Pitch = _pitchRotation;
 
@@ -155,7 +165,7 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 	// Find speed constraints
 	_minSpeed = SpeedConstraints.X;
 	_maxSpeedMinusMinSpeed = SpeedConstraints.Y - _minSpeed;
-	
+
 	// Find bar rotation restrictions
 	_barRotation = Bar->GetComponentRotation();
 	_barRotation.Pitch = FMath::Clamp(_barRotation.Pitch, -80.0f, 80.0f);
@@ -171,6 +181,13 @@ void AKitesurfingSimulatorCharacter::BeginPlay()
 
 	// Start surfing
 	_bSurfing = true;
+
+	// Set components visible
+	Board->SetHiddenInGame(false);
+	Bar->SetHiddenInGame(false);
+	Lines->SetHiddenInGame(false);
+	Kite->SetHiddenInGame(false);
+
 }
 
 void AKitesurfingSimulatorCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -352,7 +369,6 @@ void AKitesurfingSimulatorCharacter::EndSurfing()
 {
 	_bSurfing = false;
 
-	GetMesh()->AttachTo(RootComponent);
 	Board->SetHiddenInGame(true);
 	Bar->SetHiddenInGame(true);
 	Lines->SetHiddenInGame(true);
@@ -381,7 +397,7 @@ void AKitesurfingSimulatorCharacter::UpdateTextRender(bool bCongratulations /* =
 	text.Append(FString("<br>"));
 	text.Append(FString("Time: "));
 	text.Append(UKitesurfingSimulatorHelpers::FloatToStringWithPrecision(GetTimePassed(), 2));
-	text.Append(" ms");
+	text.Append(" s");
 	if (bCongratulations)
 	{
 		text.Append(FString("<br>Congratulations!"));
@@ -391,4 +407,12 @@ void AKitesurfingSimulatorCharacter::UpdateTextRender(bool bCongratulations /* =
 	{
 		TextRender->GetTextRender()->SetText(FText::FromString(text));
 	}
+}
+
+void AKitesurfingSimulatorCharacter::ResetObject()
+{
+	SetActorLocation(_initLocation);
+	SetActorRotation(_initRotation);
+	SetActorScale3D(_initScale);
+	Setup();
 }

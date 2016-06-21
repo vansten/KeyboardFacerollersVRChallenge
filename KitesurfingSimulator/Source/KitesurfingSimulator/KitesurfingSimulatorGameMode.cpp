@@ -39,3 +39,19 @@ void AKitesurfingSimulatorGameMode::BeginPlay()
 		}
 	}
 }
+
+void AKitesurfingSimulatorGameMode::ResetGame()
+{
+	IResetable* TheInterface = NULL;
+	for (TObjectIterator<AActor> It; It; ++It)
+	{
+		//Try InterFaceCasting
+		TheInterface = Cast<IResetable>(*It);
+
+		//Run the Event specific to the actor, if the actor has the interface
+		if (TheInterface)
+		{
+			TheInterface->ResetObject();
+		}
+	}
+}

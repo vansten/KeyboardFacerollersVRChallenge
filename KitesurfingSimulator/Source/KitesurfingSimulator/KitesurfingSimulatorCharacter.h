@@ -3,11 +3,12 @@
 #include "GameFramework/Character.h"
 #include "../Plugins/OceanPlugin/Source/OceanPlugin/Classes/OceanManager.h"
 #include "Runtime/Engine/Classes/Engine/TextRenderActor.h"
+#include "Resetable.h"
 
 #include "KitesurfingSimulatorCharacter.generated.h"
 
 UCLASS(config=Game)
-class AKitesurfingSimulatorCharacter : public ACharacter
+class AKitesurfingSimulatorCharacter : public ACharacter, public IResetable
 {
 	GENERATED_BODY()
 
@@ -66,6 +67,12 @@ protected:
 	FRotator _baseRotation;
 	FVector _hmdLocation; /* Unused but necessary */
 
+	// Reseting stuff
+	FVector _initLocation;
+	FRotator _initRotation;
+	FVector _initScale;
+
+
 public:
 	AKitesurfingSimulatorCharacter();
 
@@ -108,6 +115,8 @@ protected:
 
 	void UpdateTextRender(bool bCongratulations = false);
 
+	void Setup();
+
 	// End of helper functions
 
 	// Input handlers
@@ -138,4 +147,6 @@ public:
 	static float GetTimePassed() { return _timePassed; }
 
 	void EndSurfing();
+
+	virtual void ResetObject() override;
 };

@@ -13,8 +13,24 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define KITESURFINGSIMULATOR_KitesurfingSimulatorGameMode_generated_h
 
-#define KitesurfingSimulator_Source_KitesurfingSimulator_KitesurfingSimulatorGameMode_h_9_RPC_WRAPPERS
-#define KitesurfingSimulator_Source_KitesurfingSimulator_KitesurfingSimulatorGameMode_h_9_RPC_WRAPPERS_NO_PURE_DECLS
+#define KitesurfingSimulator_Source_KitesurfingSimulator_KitesurfingSimulatorGameMode_h_9_RPC_WRAPPERS \
+ \
+	DECLARE_FUNCTION(execResetGame) \
+	{ \
+		P_FINISH; \
+		this->ResetGame(); \
+	}
+
+
+#define KitesurfingSimulator_Source_KitesurfingSimulator_KitesurfingSimulatorGameMode_h_9_RPC_WRAPPERS_NO_PURE_DECLS \
+ \
+	DECLARE_FUNCTION(execResetGame) \
+	{ \
+		P_FINISH; \
+		this->ResetGame(); \
+	}
+
+
 #define KitesurfingSimulator_Source_KitesurfingSimulator_KitesurfingSimulatorGameMode_h_9_INCLASS_NO_PURE_DECLS \
 	private: \
 	static void StaticRegisterNativesAKitesurfingSimulatorGameMode(); \

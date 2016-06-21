@@ -5,6 +5,9 @@
 	DO NOT modify this manually! Edit the corresponding .h files instead!
 ===========================================================================*/
 
+#ifndef KITESURFINGSIMULATOR_Resetable_generated_h
+	#include "Resetable.h"
+#endif
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorArrow_generated_h
 	#include "KitesurfingSimulatorArrow.h"
 #endif
@@ -19,6 +22,9 @@
 #endif
 #ifndef KITESURFINGSIMULATOR_MyKitesurfingSimulatorOrca_generated_h
 	#include "MyKitesurfingSimulatorOrca.h"
+#endif
+#ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorFloating_generated_h
+	#include "KitesurfingSimulatorFloating.h"
 #endif
 #ifndef KITESURFINGSIMULATOR_KitesurfingSimulatorGameMode_generated_h
 	#include "KitesurfingSimulatorGameMode.h"

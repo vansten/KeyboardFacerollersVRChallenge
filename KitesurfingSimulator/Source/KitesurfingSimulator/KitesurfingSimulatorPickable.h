@@ -22,9 +22,6 @@ class KITESURFINGSIMULATOR_API AKitesurfingSimulatorPickable : public AActor
 	UPROPERTY(EditAnywhere, Category = Meshes)
 		UStaticMeshComponent* ColaCan;
 
-private:
-	FVector BaseActorLocation;
-
 public:	
 	// Sets default values for this actor's properties
 	AKitesurfingSimulatorPickable();
